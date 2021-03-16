@@ -1,16 +1,16 @@
 <template>
   <div >
     Hello Vue!
-    <app-server></app-server>
+    <form-vue></form-vue>
   </div>
 </template>
 
 <script>
-import Home from'./components/Home.vue';
+import From from'./components/FormList.vue';
 
 export default {
   components:{
-    'app-server':Home
+    'form-vue':From
   }
 }
 </script>

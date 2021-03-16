@@ -1,16 +1,15 @@
 <template>
   <div >
     Hello Vue!
-    <app-server></app-server>
+    <uc-select>uc-select</uc-select>
   </div>
 </template>
 
 <script>
-import Home from'./components/Home.vue';
+import UCSelect from './components/UCSelect.vue'
 
 export default {
-  components:{
-    'app-server':Home
-  }
+  components: { 'uc-select':UCSelect }
+  
 }
 </script>

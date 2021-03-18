@@ -71,7 +71,7 @@
                 //     childrenId.find({id:this.number}).then(res=>{
                 //         console.log(res.data);
                 //         this.parent=res.data;
-                //     })git
+                //     })
                 // }
             }
         }

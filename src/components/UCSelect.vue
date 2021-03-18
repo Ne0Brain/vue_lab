@@ -13,8 +13,11 @@
             </b-col>
             </b-row>
             
-        </b-form-group>
-        <b-container>
+        </b-form-group> -->
+
+
+        <!-- -->
+        <!-- <b-container>
         <b-row>
         <b-col cols="4">
             <b-list-group>
@@ -22,9 +25,9 @@
                 {{user.name}}
             </b-list-group-item >
             </b-list-group>
-        </b-col>
+        </b-col> -->
         <!-- <div>選擇的第二層 {{secLayer}}</div> -->
-        <b-col cols="5">
+        <!-- <b-col cols="5">
             <div v-for="user in parent" :key="user.id">
                 <div v-if="secLayer.id===user.id">
                     <b-list-group>
@@ -46,7 +49,7 @@
     import{childrenId} from '../resource.js'
     
     export default{
-            el:"#app",
+            // el:"#app",
             data(){
                 return{
                     number: '',
@@ -61,9 +64,16 @@
             },
             methods:{
                 getAll(){
-                    childrenId.find().then(res=>{
-                        console.log(res);
-                        this.parent=res.body;
+                    this.$http.get('https://uc-selectdb-default-rtdb.firebaseio.com/users.json')
+                    .then(res=>{
+                        return res.json();
+                    })
+                    .then(res=>{
+                        const resultArray =[];
+                        for(let key in res){
+                            resultArray.push(res[key]);
+                        }
+                        this.parent=resultArray;
                     })
                 },            
                 // searchByParentId(){

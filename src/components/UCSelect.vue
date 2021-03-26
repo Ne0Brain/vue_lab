@@ -1,55 +1,33 @@
 <template>
     <div id="app">
-        <button v-on:click="getAll">get all</button>
         <!-- 第一層 -->
         <b-form-group>
-            <b-row align-h="center">
+            <b-row align-h="start">
             <b-col cols="4"  >
                 <b-form-input id="parentId" v-model="number" placeholder="Enter parent id"></b-form-input>
-                <div class="mt-2">Value: {{ number }}</div>
             </b-col>
             <b-col cols="2">
-                <b-button type="submit"  v-on:click="searchByParentId">Submit</b-button>
+                <b-button type="submit"  v-on:click="searchByParentId" >Submit</b-button>
             </b-col>
             </b-row>
-            
-        </b-form-group> -->
+        </b-form-group>
+            <b-row align-h="start">
+                <b-col>
+                    <b-form-select  v-model="selected" :options="options" v-on:change="renew(selected)"></b-form-select>
+                </b-col>
+            <!-- <div class="mt-3">Selected: <strong>{{ selected }}</strong></div> -->
+                <b-col>
+                    <b-form-select  v-model="childselected" :options="childoptions" ></b-form-select>
+                </b-col>
+            </b-row>
 
-
-        <!-- -->
-        <!-- <b-container>
-        <b-row>
-        <b-col cols="4">
-            <b-list-group>
-            <b-list-group-item button v-for="user in parent" :key="user.id" @click="secLayer=user">
-                {{user.name}}
-            </b-list-group-item >
-            </b-list-group>
-        </b-col> -->
-        <!-- <div>選擇的第二層 {{secLayer}}</div> -->
-        <!-- <b-col cols="5">
-            <div v-for="user in parent" :key="user.id">
-                <div v-if="secLayer.id===user.id">
-                    <b-list-group>
-                    <b-list-group-item button v-for="child in user.children" :key="child.id" @click="thirdLayer=child">
-                        {{child.name}}
-                        <div v-if="thirdLayer.id===child.id&& children.children">
-                            <div v-for="item in children.children" :key="item"> {{item.id}}</div>
-                        </div>
-                    </b-list-group-item >
-                    </b-list-group> 
-                </div>
-            </div>
-        </b-col>
-        </b-row>
-        </b-container>
     </div>
 </template>
 <script>
-    import{childrenId} from '../resource.js'
+    import{parentdata} from '../resource'
     
     export default{
-            // el:"#app",
+            el:"#app",
             data(){
                 return{
                     number: '',
@@ -57,32 +35,82 @@
                     parent:[],
                     secLayer:Object,
                     thirdLayer:Object,
-                    // users:[{id:1,name:'neo1',children:[]},{id:2,name:'neo2',children:[]},{id:3,name:'neo3',children:[]}]
-                    users:[]
+                    selected:null,
+                    options:[],
+                    childselected:null,
+                    childoptions:[]
                     
                 }
             },
             methods:{
                 getAll(){
-                    this.$http.get('https://uc-selectdb-default-rtdb.firebaseio.com/users.json')
+                    parentdata.find({id:""}).then(res=>{
+                        let jsonObj=res.json();
+                        const arr=[]
+                        for(let key in jsonObj){
+                            console.log(key);
+                            arr.push(jsonObj[key]);
+                        }
+                    })
+                },            
+                searchByParentId(){
+                    this.id=document.getElementById("parentId").value;
+                    this.selected=this.number;
+                    parentdata.find({id:this.id}).then(res=>{
+                        // console.log(res.body);
+                        this.childoptions=[];
+                        for(let key in res.body){
+                            let option=this.makeOption(key,res.body);
+                            this.childoptions.push(option);
+                        }
+                    })
+                },
+                renew(selected){
+                    let childs=[];
+                    for(let i in this.parent){
+                        if(this.parent[i].id===Number(selected)){
+                            //sort parent children by id asc
+                            this.parent[i].children=this.parent[i].children.sort(function(a,b){
+                                return a.id>b.id?1:-1;
+                            })
+                            childs=this.parent[i].children;
+                        }
+                    }
+                    let arr=[];
+                    for(let i=0 ;i<childs.length;i++){
+                        let option=this.makeOption(i,childs)
+                        arr.push(option);
+                    }
+                    this.childoptions=arr;
+                },
+                makeOption(index,arr){
+                    let option={text:'name',value:Number};
+                    option.text=arr[index].name;
+                    option.value=arr[index].id;
+                    return option;
+                },
+                getAll2(){
+                    this.$http.get(`https://uc-selectdb-default-rtdb.firebaseio.com/users.json`)
                     .then(res=>{
                         return res.json();
                     })
-                    .then(res=>{
-                        const resultArray =[];
-                        for(let key in res){
-                            resultArray.push(res[key]);
-                        }
-                        this.parent=resultArray;
+                    .then(data=>{
+                        for(let i in data){
+                          console.log(data[i]);
+                          let option=this.makeOption(i,data);
+                          this.options.push(option);
+                        }                        
                     })
-                },            
-                // searchByParentId(){
-                //     this.id=document.getElementById("parentId").value;
-                //     childrenId.find({id:this.number}).then(res=>{
-                //         console.log(res.data);
-                //         this.parent=res.data;
-                //     })
-                // }
+                }
+            },
+            watch:{
+                selected:function(val){
+                    this.renew(val);
+                }
+            },
+            created(){
+                // this.getAll();
+                this.getAll2();
             }
         }
 </script>
